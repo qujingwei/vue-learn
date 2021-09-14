@@ -1,48 +1,43 @@
-function observer (data){
-    if(!data || Object.prototype.toString.call(data) !== '[object Object]') return
-    
-    Object.keys(data).forEach((key) => {
-        defineReactive(data, key, data[key])
-    })
-    
+class Observe {
+    constructor(value){
+        this.value = value
+        this.walk()
+    }
+
+    walk(){
+        Object.keys(this.value).forEach(key => {
+            defineReactive(this.value, key)
+        })
+    }
 }
 
-function defineReactive(obj, key, value){
+function observe(value){
+    if (typeof value !== 'object') return
+    return new Observe(value)
+}
+
+function defineReactive(obj, key, value = obj[key]){
+    observe(value)
     Object.defineProperty(obj, key, {
-        enumerable:true,
-        configurable:true,
-        get(){
+        enumerable: true,
+        configurable: true,
+        get (){
+            console.log(111);
             return value
         },
         set (newVal){
             if(value === newVal) return
+            console.log(222);
             value = newVal
-            cb(newVal)
         }
     })
 }
 
-function cb(){
-    console.log('试图更新了~');
-}
 
-class Vue {
-    constructor(option){
-        this._data = option.data
-        observer(this._data)
-    }
-    changeData (){
-        this._data.test = 'change'
+let obj = {
+    a:1,
+    obj:{
+        b:2
     }
 }
-
-
-let vue = new Vue({
-    data: {
-        test: "I am test."
-    }
-})
-
-vue.changeData()
-vue.changeData()
-
+observe(obj)
